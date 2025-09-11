@@ -5,6 +5,7 @@ import br.com.sistemavaquejada.vaquejada_api.controller.request.EventRequest;
 import br.com.sistemavaquejada.vaquejada_api.controller.response.EventResponse;
 import br.com.sistemavaquejada.vaquejada_api.entity.Event;
 import br.com.sistemavaquejada.vaquejada_api.service.EventServices;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class EventController {
     private final EventServices eventServices;
 
     @PostMapping
-    public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest event) {
+    public ResponseEntity<EventResponse> createEvent(@Valid @RequestBody EventRequest event) {
         Event createdEvent = eventServices.createEvent(EventMapper.toEvent(event));
         return ResponseEntity.status(HttpStatus.CREATED).body(EventMapper.toEventResponse(createdEvent));
     }
