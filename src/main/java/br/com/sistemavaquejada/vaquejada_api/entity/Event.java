@@ -1,5 +1,6 @@
 package br.com.sistemavaquejada.vaquejada_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +40,10 @@ public class Event {
 
     private Integer quantidadeTotalDeSenha;
 
+    @ElementCollection
+    @CollectionTable(name = "evento_midias",
+            joinColumns = @JoinColumn(name = "evento_id"))
+    @Column(name = "midia")
     private List<String> imagensVideos;
 
     @Enumerated(EnumType.STRING)

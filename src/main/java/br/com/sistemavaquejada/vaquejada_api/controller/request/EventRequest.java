@@ -1,6 +1,7 @@
 package br.com.sistemavaquejada.vaquejada_api.controller.request;
 
 import br.com.sistemavaquejada.vaquejada_api.entity.Status;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +28,9 @@ public record EventRequest(
         @NotNull(message = "Esse campo é obrigatório.")
         @Positive(message = "O preço deve ser maior que zero")
         Double precoBaseSenha,
+        @NotNull(message = "Esse campo é obrigatório")
         Integer quantidadeTotalDeSenha,
+        @JsonAlias({"evento_midias", "imagensVideos"})
         List<String> imagensVideos,
         Status status) {
 }
