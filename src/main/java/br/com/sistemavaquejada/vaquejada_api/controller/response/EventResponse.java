@@ -1,6 +1,7 @@
 package br.com.sistemavaquejada.vaquejada_api.controller.response;
 
 import br.com.sistemavaquejada.vaquejada_api.entity.Status;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 
 import java.time.LocalDate;
@@ -10,7 +11,9 @@ import java.util.List;
 public record EventResponse(
         Long id,
         String nome,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
         LocalDate dataInicio,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
         LocalDate dataFim,
         String local,
         String descricao,

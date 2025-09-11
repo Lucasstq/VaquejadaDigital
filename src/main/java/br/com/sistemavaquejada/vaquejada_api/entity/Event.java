@@ -2,8 +2,6 @@ package br.com.sistemavaquejada.vaquejada_api.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,11 +22,9 @@ public class Event {
     @Column(length = 100, nullable = false)
     private String nome;
 
-    @CreationTimestamp
     @Column(name = "dataInicio")
     private LocalDate dataInicio;
 
-    @UpdateTimestamp
     @Column(name = "dataFim")
     private LocalDate dataFim;
 
@@ -45,5 +41,7 @@ public class Event {
 
     private List<String> imagensVideos;
 
-    private Status status;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Status status = Status.ATIVO;
 }

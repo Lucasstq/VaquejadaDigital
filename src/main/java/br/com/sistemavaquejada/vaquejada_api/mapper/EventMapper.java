@@ -12,6 +12,8 @@ public class EventMapper {
         return Event
                 .builder()
                 .nome(eventRequest.nome())
+                .dataInicio(eventRequest.dataInicio())
+                .dataFim(eventRequest.dataFim())
                 .local(eventRequest.local())
                 .descricao(eventRequest.descricao())
                 .precoBaseSenha(eventRequest.precoBaseSenha())

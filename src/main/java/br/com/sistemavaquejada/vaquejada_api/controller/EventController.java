@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -31,5 +31,12 @@ public class EventController {
         return ResponseEntity.ok(EventMapper.toEventResponse(event));
     }
 
+    @GetMapping
+    public ResponseEntity<List<EventResponse>> findAllEvents() {
+        return ResponseEntity.ok(eventServices.findByStatus()
+                .stream()
+                .map(EventMapper::toEventResponse)
+                .toList());
+    }
 
 }
