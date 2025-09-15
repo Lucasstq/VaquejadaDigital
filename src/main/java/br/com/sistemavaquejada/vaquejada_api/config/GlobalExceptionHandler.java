@@ -2,6 +2,8 @@ package br.com.sistemavaquejada.vaquejada_api.config;
 
 import br.com.sistemavaquejada.vaquejada_api.exception.EventNotFoundException;
 import br.com.sistemavaquejada.vaquejada_api.exception.UsernameOrPasswordInvalid;
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +23,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleEventNotFoundException(EventNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = ex.getRootCause() != null ? ex.getRootCause().getMessage() : ex.getMessage();
+        if (message != null) {
+            if (message.contains("email")) {
+                return new ResponseEntity<>("O email fornecido já está em uso", HttpStatus.BAD_REQUEST);
+            } else if (message.contains("telefone")) {
+                return new ResponseEntity<>("telefone fornecido já está em uso", HttpStatus.BAD_REQUEST);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
 
     @ExceptionHandler(UsernameOrPasswordInvalid.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
