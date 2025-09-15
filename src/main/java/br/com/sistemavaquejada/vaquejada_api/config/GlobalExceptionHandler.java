@@ -1,6 +1,7 @@
 package br.com.sistemavaquejada.vaquejada_api.config;
 
 import br.com.sistemavaquejada.vaquejada_api.exception.EventNotFoundException;
+import br.com.sistemavaquejada.vaquejada_api.exception.UsernameOrPasswordInvalid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -18,6 +19,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<String> handleEventNotFoundException(EventNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UsernameOrPasswordInvalid.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleNotFoundException(UsernameOrPasswordInvalid ex) {
+        return ex.getMessage();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
