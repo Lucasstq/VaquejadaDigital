@@ -29,14 +29,16 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/vaquejada/evento").permitAll()
                         .requestMatchers(HttpMethod.POST, "/vaquejada/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/vaquejada/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/vaquejada/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/vaquejada/evento/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
 
 
     @Bean

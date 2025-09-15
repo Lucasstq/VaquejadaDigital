@@ -13,6 +13,5 @@ public record UserRequest(
         @NotBlank(message = "Campo obrigatório")
         String senha,
         @NotBlank(message = "Campo obrigatório")
-        String telefone,
-        Perfil perfil) {
+        String telefone) {
 }

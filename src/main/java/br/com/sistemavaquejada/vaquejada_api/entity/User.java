@@ -4,10 +4,12 @@ import br.com.sistemavaquejada.vaquejada_api.entity.Enumns.Perfil;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @Entity
@@ -41,7 +43,18 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + perfil.name()));
+    }
+
+    public boolean hasAuthorityLevel(Perfil requiredPerfil) {
+        Map<Perfil, Integer> levels = Map.of(
+                Perfil.CORREDOR, 1,
+                Perfil.LOCUTOR, 2,
+                Perfil.JUIZ, 3,
+                Perfil.ADMIN, 4
+        );
+
+        return levels.get(this.perfil) >= levels.get(requiredPerfil);
     }
 
     @Override
