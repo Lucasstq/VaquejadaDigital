@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/vaquejada/users")
 @RequiredArgsConstructor
@@ -24,6 +26,15 @@ public class UsersController {
         User updateUser = userService.updateUser(id, request.perfil());
         return ResponseEntity.ok(UserMapper.toUserResponse(updateUser));
 
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponse>> findAll() {
+        List<UserResponse> users = userService.findAll().stream()
+                .map(UserMapper::toUserResponse)
+                .toList();
+        return ResponseEntity.ok(users);
     }
 
 

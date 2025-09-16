@@ -1,7 +1,7 @@
 package br.com.sistemavaquejada.vaquejada_api.repository;
 
 import br.com.sistemavaquejada.vaquejada_api.entity.Event;
-import br.com.sistemavaquejada.vaquejada_api.entity.Status;
+import br.com.sistemavaquejada.vaquejada_api.entity.Enumns.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

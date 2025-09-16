@@ -1,6 +1,6 @@
 package br.com.sistemavaquejada.vaquejada_api.controller.request;
 
-import br.com.sistemavaquejada.vaquejada_api.entity.Status;
+import br.com.sistemavaquejada.vaquejada_api.entity.Enumns.Status;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;

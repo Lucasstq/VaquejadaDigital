@@ -1,5 +1,7 @@
 package br.com.sistemavaquejada.vaquejada_api.config;
 
+import br.com.sistemavaquejada.vaquejada_api.entity.User;
+import br.com.sistemavaquejada.vaquejada_api.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -30,8 +33,13 @@ public class SecurityFilter extends OncePerRequestFilter {
             if (optJwtUserData.isPresent()) {
                 JWTUserData userData = optJwtUserData.get();
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userData, null, null);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                Optional<User> optUser = userRepository.findById(userData.id());
+                if (optUser.isPresent()) {
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userData, null, optUser.get().getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+
+
             }
             filterChain.doFilter(request, response);
         } else {

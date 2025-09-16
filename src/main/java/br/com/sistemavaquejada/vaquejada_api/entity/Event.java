@@ -1,6 +1,6 @@
 package br.com.sistemavaquejada.vaquejada_api.entity;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import br.com.sistemavaquejada.vaquejada_api.entity.Enumns.Status;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,6 +1,6 @@
 package br.com.sistemavaquejada.vaquejada_api.controller.response;
 
-import br.com.sistemavaquejada.vaquejada_api.entity.Status;
+import br.com.sistemavaquejada.vaquejada_api.entity.Enumns.Status;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 

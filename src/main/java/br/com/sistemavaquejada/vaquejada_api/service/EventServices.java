@@ -1,7 +1,7 @@
 package br.com.sistemavaquejada.vaquejada_api.service;
 
 import br.com.sistemavaquejada.vaquejada_api.entity.Event;
-import br.com.sistemavaquejada.vaquejada_api.entity.Status;
+import br.com.sistemavaquejada.vaquejada_api.entity.Enumns.Status;
 import br.com.sistemavaquejada.vaquejada_api.exception.EventNotFoundException;
 import br.com.sistemavaquejada.vaquejada_api.repository.EventRepository;
 import lombok.RequiredArgsConstructor;

@@ -15,13 +15,14 @@ public class UserMapper {
                 .email(userRequest.email())
                 .telefone(userRequest.telefone())
                 .senha(userRequest.senha())
-                .perfil(userRequest.perfil())
                 .build();
     }
 
     public static UserResponse toUserResponse(User user) {
         return UserResponse.builder()
+                .id(user.getId())
                 .email(user.getEmail())
+                .nome(user.getNome())
                 .telefone(user.getTelefone())
                 .perfil(user.getPerfil())
                 .build();
