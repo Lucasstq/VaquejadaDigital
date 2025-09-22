@@ -51,6 +51,8 @@ public class Usuarios implements UserDetails {
     @LastModifiedDate
     private LocalDateTime atualizadoEm;
 
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Corredor corredor;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
