@@ -1,6 +1,5 @@
 package br.com.vaquejada_digital.VaquejadaDigital.controller;
 
-import br.com.vaquejada_digital.VaquejadaDigital.config.JWTUserData;
 import br.com.vaquejada_digital.VaquejadaDigital.controller.reponse.CorredorResponse;
 import br.com.vaquejada_digital.VaquejadaDigital.controller.request.CorredorRequest;
 import br.com.vaquejada_digital.VaquejadaDigital.entity.Corredor;

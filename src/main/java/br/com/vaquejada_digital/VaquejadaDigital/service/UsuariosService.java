@@ -31,6 +31,19 @@ public class UsuariosService {
     }
 
 
+    public Usuarios promoverUsuario(Long id, Perfil novoPerfil) {
+        Usuarios usuarios = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
+
+        if (usuarios.getTipoPerfil() == Perfil.ADMIN) {
+            throw new RuntimeException("Não é possível alterar perfil de admin");
+        }
+
+        usuarios.setTipoPerfil(novoPerfil);
+        Usuarios salvo = repository.save(usuarios);
+        return salvo;
+    }
+
     public List<Usuarios> findAll() {
         return repository.findAll();
     }
