@@ -15,12 +15,19 @@ public class UsuariosService {
 
     private final UsuariosRepository repository;
     private final PasswordEncoder encoder;
+    private final CorredorService corredorService;
 
     public Usuarios criarUsuario(Usuarios usuario) {
         if (usuario.getTipoPerfil() == null) usuario.setTipoPerfil(Perfil.CORREDOR);
         String senha = usuario.getSenha();
         usuario.setSenha(encoder.encode(senha));
-        return repository.save(usuario);
+
+        Usuarios save = repository.save(usuario);
+        if (save.getTipoPerfil() == Perfil.CORREDOR) {
+            corredorService.criarCorredorVazio(save);
+        }
+        return save;
+
     }
 
 
