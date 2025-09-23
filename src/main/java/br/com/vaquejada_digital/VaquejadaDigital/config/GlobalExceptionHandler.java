@@ -1,6 +1,8 @@
 package br.com.vaquejada_digital.VaquejadaDigital.config;
 
+import br.com.vaquejada_digital.VaquejadaDigital.exceptions.EventoNotFoundException;
 import br.com.vaquejada_digital.VaquejadaDigital.exceptions.UsernameOrPasswordInvalid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameOrPasswordInvalid.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleNotFoundException(UsernameOrPasswordInvalid ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleBadRequestException(EventoNotFoundException ex) {
         return ex.getMessage();
     }
 

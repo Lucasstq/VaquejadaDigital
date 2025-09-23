@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final SecurityFilter securityFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -30,6 +31,8 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.POST, "/vaquejada-digital/auth/registro").permitAll()
                         .requestMatchers(HttpMethod.POST, "vaquejada-digital/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/vaquejada-digital/evento").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/vaquejada-digital/evento/{id}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

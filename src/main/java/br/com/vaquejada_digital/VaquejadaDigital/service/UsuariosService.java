@@ -18,7 +18,7 @@ public class UsuariosService {
     private final CorredorService corredorService;
 
     public Usuarios criarUsuario(Usuarios usuario) {
-        if (usuario.getTipoPerfil() == null) usuario.setTipoPerfil(Perfil.CORREDOR);
+
         String senha = usuario.getSenha();
         usuario.setSenha(encoder.encode(senha));
 
@@ -28,6 +28,14 @@ public class UsuariosService {
         }
         return save;
 
+    }
+
+    public List<Usuarios> buscarJuizes() {
+        return repository.findByTipoPerfilAndAtivoTrue(Perfil.JUIZ);
+    }
+
+    public List<Usuarios> buscarLocutores() {
+        return repository.findByTipoPerfilAndAtivoTrue(Perfil.LOCUTOR);
     }
 
 

@@ -15,6 +15,7 @@ public class UsuariosMapper {
                 .senha(request.senha())
                 .nome(request.nome())
                 .telefone(request.telefone())
+                .tipoPerfil(request.perfil())
                 .build();
 
     }
@@ -26,6 +27,7 @@ public class UsuariosMapper {
                 .email(usuario.getEmail())
                 .nome(usuario.getNome())
                 .telefone(usuario.getTelefone())
+                .perfil(usuario.getTipoPerfil())
                 .build();
     }
 
