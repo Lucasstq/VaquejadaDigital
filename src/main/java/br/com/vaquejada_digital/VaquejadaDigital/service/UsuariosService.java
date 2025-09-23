@@ -30,15 +30,6 @@ public class UsuariosService {
 
     }
 
-    public List<Usuarios> buscarJuizes() {
-        return repository.findByTipoPerfilAndAtivoTrue(Perfil.JUIZ);
-    }
-
-    public List<Usuarios> buscarLocutores() {
-        return repository.findByTipoPerfilAndAtivoTrue(Perfil.LOCUTOR);
-    }
-
-
     public Usuarios promoverUsuario(Long id, Perfil novoPerfil) {
         Usuarios usuarios = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
