@@ -1,5 +1,6 @@
 package br.com.vaquejada_digital.VaquejadaDigital.mapper;
 
+import br.com.vaquejada_digital.VaquejadaDigital.controller.reponse.UsuarioSimpleResponse;
 import br.com.vaquejada_digital.VaquejadaDigital.controller.reponse.UsuariosResponse;
 import br.com.vaquejada_digital.VaquejadaDigital.controller.request.UsuariosRequest;
 import br.com.vaquejada_digital.VaquejadaDigital.entity.Usuarios;
@@ -7,6 +8,14 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class UsuariosMapper {
+
+    public static UsuarioSimpleResponse toUsuarioSimpleResponse(Usuarios usuario) {
+        return UsuarioSimpleResponse.builder()
+                .id(usuario.getId())
+                .nome(usuario.getNome())
+                .email(usuario.getEmail())
+                .build();
+    }
 
     public static Usuarios toUser(UsuariosRequest request) {
         return Usuarios
