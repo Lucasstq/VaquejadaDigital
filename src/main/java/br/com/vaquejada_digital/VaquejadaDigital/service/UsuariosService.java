@@ -47,4 +47,25 @@ public class UsuariosService {
         return repository.findAll();
     }
 
+
+    public List<Usuarios> buscarJuizesById(List<Long> id) {
+        List<Usuarios> juizes = repository.findByIdInAndTipoPerfil(id, Perfil.JUIZ);
+
+        if (juizes.size() != id.size()) {
+            throw new IllegalArgumentException("Alguns IDs não correspondem a juízes válidos");
+        }
+
+        return juizes;
+    }
+
+    public List<Usuarios> buscarLocutoresById(List<Long> id) {
+        List<Usuarios> locutores = repository.findByIdInAndTipoPerfil(id, Perfil.LOCUTOR);
+
+        if (locutores.size() != id.size()) {
+            throw new IllegalArgumentException("Alguns IDs não correspondem a locutores válidos");
+        }
+
+        return locutores;
+    }
+
 }
