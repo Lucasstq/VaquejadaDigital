@@ -1,9 +1,12 @@
 package br.com.vaquejada_digital.VaquejadaDigital.mapper;
 
 import br.com.vaquejada_digital.VaquejadaDigital.controller.reponse.EventoResponse;
+import br.com.vaquejada_digital.VaquejadaDigital.controller.reponse.UsuarioSimpleResponse;
 import br.com.vaquejada_digital.VaquejadaDigital.controller.request.EventoRequest;
 import br.com.vaquejada_digital.VaquejadaDigital.entity.Evento;
 import lombok.experimental.UtilityClass;
+
+import java.util.List;
 
 @UtilityClass
 public class EventoMapper {
@@ -24,6 +27,14 @@ public class EventoMapper {
 
     public static EventoResponse toEventResponse(Evento event) {
 
+        List<UsuarioSimpleResponse> juizesList = event.getJuizes().stream()
+                .map(UsuariosMapper::toUsuarioSimpleResponse)
+                .toList();
+
+        List<UsuarioSimpleResponse> locutoresList = event.getLocutores().stream()
+                .map(UsuariosMapper::toUsuarioSimpleResponse)
+                .toList();
+
         return EventoResponse
                 .builder()
                 .id(event.getId())
@@ -36,6 +47,8 @@ public class EventoMapper {
                 .imagensVideos(event.getImagensVideos())
                 .quantidadeTotalSenhas(event.getQuantidadeTotalSenhas())
                 .status(event.getStatus())
+                .juizes(juizesList)
+                .locutores(locutoresList)
                 .build();
     }
 }
