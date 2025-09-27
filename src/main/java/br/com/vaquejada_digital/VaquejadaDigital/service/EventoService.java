@@ -1,6 +1,7 @@
 package br.com.vaquejada_digital.VaquejadaDigital.service;
 
 import br.com.vaquejada_digital.VaquejadaDigital.entity.Evento;
+import br.com.vaquejada_digital.VaquejadaDigital.entity.Usuarios;
 import br.com.vaquejada_digital.VaquejadaDigital.entity.enums.Status;
 import br.com.vaquejada_digital.VaquejadaDigital.exceptions.EventoNotFoundException;
 import br.com.vaquejada_digital.VaquejadaDigital.repository.EventoRepository;
@@ -14,8 +15,15 @@ import java.util.List;
 public class EventoService {
 
     private final EventoRepository eventoRepository;
+    private final UsuariosService usuariosService;
 
-    public Evento createEvent(Evento event) {
+    public Evento createEvent(Evento event, List<Long> juizId, List<Long> locutorId) {
+
+        List<Usuarios> juizes = usuariosService.buscarJuizesById(juizId);
+        List<Usuarios> locutores = usuariosService.buscarLocutoresById(locutorId);
+
+        event.setJuizes(juizes);
+        event.setLocutores(locutores);
         event.setStatus(Status.ATIVO);
         return eventoRepository.save(event);
     }

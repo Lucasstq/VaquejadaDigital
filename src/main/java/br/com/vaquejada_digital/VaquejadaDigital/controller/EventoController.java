@@ -25,8 +25,10 @@ public class EventoController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventoResponse> createEvent(@Valid @RequestBody EventoRequest event) {
-        Evento createdEvent = eventoService.createEvent(EventoMapper.toEvent(event));
+    public ResponseEntity<EventoResponse> createEvent(@Valid @RequestBody EventoRequest request) {
+        Evento evento = EventoMapper.toEvent(request);
+        Evento createdEvent = eventoService.createEvent(evento, request.juizesIds(), request.locutoresIds());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(EventoMapper.toEventResponse(createdEvent));
     }
 
@@ -64,7 +66,7 @@ public class EventoController {
                 .toList());
     }
 
-    @GetMapping("/[id]")
+    @GetMapping("/{id}")
     public ResponseEntity<EventoResponse> findByIdEventos(@PathVariable Long id) {
         Evento byIdPublico = eventoService.findById(id);
         return ResponseEntity.ok(EventoMapper.toEventResponse(byIdPublico));
