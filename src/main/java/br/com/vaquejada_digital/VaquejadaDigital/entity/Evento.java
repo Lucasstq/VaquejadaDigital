@@ -50,7 +50,13 @@ public class Evento {
     @Min(value = 1, message = "Quantidade deve ser maior que zero")
     private Integer quantidadeTotalSenhas;
 
+    @ElementCollection
+    @CollectionTable(
+            name = "tb_evento_midias",
+            joinColumns = @JoinColumn(name = "evento_id")
+    )
     @Column(name = "url_midia")
+    @Builder.Default
     private List<String> imagensVideos = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -64,6 +70,24 @@ public class Evento {
     @LastModifiedDate
     @Column(name = "atualizado_em")
     private LocalDateTime atualizadoEm;
+
+    @ManyToMany
+    @JoinTable(
+            name = "tb_evento_juizes",
+            joinColumns = @JoinColumn(name = "evento_id"),
+            inverseJoinColumns = @JoinColumn(name = "usuario_id")
+    )
+    @Builder.Default
+    private List<Usuarios> juizes = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "tb_evento_locutores",
+            joinColumns = @JoinColumn(name = "evento_id"),
+            inverseJoinColumns = @JoinColumn(name = "usuario_id")
+    )
+    @Builder.Default
+    private List<Usuarios> locutores = new ArrayList<>();
 
 
 }
