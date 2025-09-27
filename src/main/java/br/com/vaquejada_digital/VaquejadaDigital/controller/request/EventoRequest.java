@@ -35,8 +35,8 @@ public record EventoRequest(
         Integer quantidadeTotalSenhas,
 
         @NotEmpty(message = "Deve haver pelo menos um juiz designado")
-        List<String> emailsJuizes,
+        List<Long> juizesIds,
 
         @NotEmpty(message = "Deve haver pelo menos um locutor designado")
-        List<String> emailsLocutores
+        List<Long> locutoresIds
 ) {}

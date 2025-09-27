@@ -1,6 +1,5 @@
 package br.com.vaquejada_digital.VaquejadaDigital.controller.reponse;
 
-import br.com.vaquejada_digital.VaquejadaDigital.entity.Usuarios;
 import br.com.vaquejada_digital.VaquejadaDigital.entity.enums.Status;
 import lombok.Builder;
 
@@ -22,6 +21,6 @@ public record EventoResponse(
         Integer senhasDisponiveis,
         List<String> imagensVideos,
         Status status,
-        List<String> juizes,
-        List<String> locutores
+        List<UsuarioSimpleResponse> juizes,
+        List<UsuarioSimpleResponse> locutores
 ){}
