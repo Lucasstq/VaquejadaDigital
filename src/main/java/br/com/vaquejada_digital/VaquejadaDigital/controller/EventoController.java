@@ -42,7 +42,6 @@ public class EventoController {
 
 
     @GetMapping("/todos-eventos")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EventoResponse>> findAll() {
         return ResponseEntity.ok(eventoService.findAll()
                 .stream()
@@ -68,8 +67,8 @@ public class EventoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EventoResponse> findByIdEventos(@PathVariable Long id) {
-        Evento byIdPublico = eventoService.findById(id);
-        return ResponseEntity.ok(EventoMapper.toEventResponse(byIdPublico));
+        Evento byId = eventoService.findById(id);
+        return ResponseEntity.ok(EventoMapper.toEventResponse(byId));
     }
 
 }

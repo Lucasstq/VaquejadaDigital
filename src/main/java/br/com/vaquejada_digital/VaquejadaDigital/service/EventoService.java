@@ -54,11 +54,7 @@ public class EventoService {
     }
 
     public Evento findById(Long id) {
-        Evento evento = new Evento();
-        if (evento.getStatus() == Status.ATIVO) {
-            evento = eventoRepository.findById(id).orElseThrow(() -> new EventoNotFoundException("Evento não encontrado."));
-        }
-        return evento;
+        return eventoRepository.findById(id).orElseThrow(() -> new EventoNotFoundException("Evento não encontrado."));
     }
 
     public Evento updateStatus(Long id, Status status) {
