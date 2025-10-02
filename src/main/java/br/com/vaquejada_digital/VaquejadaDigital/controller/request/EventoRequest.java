@@ -38,5 +38,14 @@ public record EventoRequest(
         List<Long> juizesIds,
 
         @NotEmpty(message = "Deve haver pelo menos um locutor designado")
-        List<Long> locutoresIds
+        List<Long> locutoresIds,
+
+        BigDecimal precoComDesconto,
+
+        Integer percentualDesconto,
+
+        BigDecimal valorAbvaq,
+
+        @NotNull(message = "Categoria é obrigatória")
+        Long categoriaId
 ) {}
