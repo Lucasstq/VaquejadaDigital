@@ -22,5 +22,8 @@ public record EventoResponse(
         List<String> imagensVideos,
         Status status,
         List<UsuarioSimpleResponse> juizes,
-        List<UsuarioSimpleResponse> locutores
+        List<UsuarioSimpleResponse> locutores,
+        BigDecimal precoComDesconto,
+        BigDecimal valorAbvaq,
+        Integer percentualDesconto
 ){}
