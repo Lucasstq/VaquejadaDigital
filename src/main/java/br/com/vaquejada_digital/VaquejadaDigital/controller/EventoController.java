@@ -27,7 +27,7 @@ public class EventoController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventoResponse> createEvent(@Valid @RequestBody EventoRequest request) {
         Evento evento = EventoMapper.toEvent(request);
-        Evento createdEvent = eventoService.createEvent(evento, request.juizesIds(), request.locutoresIds());
+        Evento createdEvent = eventoService.createEvent(evento, request.juizesIds(), request.locutoresIds(), request.categoriaId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(EventoMapper.toEventResponse(createdEvent));
     }
