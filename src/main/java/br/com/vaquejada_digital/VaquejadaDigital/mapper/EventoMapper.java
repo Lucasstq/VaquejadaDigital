@@ -6,6 +6,7 @@ import br.com.vaquejada_digital.VaquejadaDigital.controller.request.EventoReques
 import br.com.vaquejada_digital.VaquejadaDigital.entity.Evento;
 import lombok.experimental.UtilityClass;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @UtilityClass
@@ -20,7 +21,13 @@ public class EventoMapper {
                 .local(eventRequest.local())
                 .descricao(eventRequest.descricao())
                 .precoBaseSenha(eventRequest.precoBaseSenha())
+                .precoComDesconto(eventRequest.precoComDesconto())
+                .percentualDesconto(eventRequest.percentualDesconto())
+                .valorAbvaq(eventRequest.valorAbvaq() != null ?
+                        eventRequest.valorAbvaq() :
+                        new BigDecimal("10.00"))
                 .quantidadeTotalSenhas(eventRequest.quantidadeTotalSenhas())
+                .senhasVendidas(0)
                 .imagensVideos(eventRequest.imagensVideos())
                 .build();
     }
@@ -49,6 +56,11 @@ public class EventoMapper {
                 .status(event.getStatus())
                 .juizes(juizesList)
                 .locutores(locutoresList)
+                .senhasVendidas(event.getSenhasVendidas())
+                .senhasDisponiveis(event.getSenhasDisponiveis())
+                .precoComDesconto(event.getPrecoComDesconto())
+                .valorAbvaq(event.getValorAbvaq())
+                .percentualDesconto(event.getPercentualDesconto())
                 .build();
     }
 }
