@@ -89,5 +89,34 @@ public class Evento {
     @Builder.Default
     private List<Usuarios> locutores = new ArrayList<>();
 
+    @Column(name = "preco_com_desconto", precision = 10, scale = 2)
+    private BigDecimal precoComDesconto;
+
+    @Column(name = "percentual_desconto")
+    private Integer percentualDesconto;
+
+    @Column(name = "valor_abvaq", precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal valorAbvaq = new BigDecimal("10.00");
+
+    @PrePersist
+    @PreUpdate
+    private void calcularPrecoComDesconto() {
+        if (percentualDesconto != null && precoBaseSenha != null && precoComDesconto == null) {
+            BigDecimal desconto = precoBaseSenha
+                    .multiply(new BigDecimal(percentualDesconto))
+                    .divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+            this.precoComDesconto = precoBaseSenha.subtract(desconto);
+        }
+    }
+
+    public Integer getSenhasDisponiveis() {
+        return quantidadeTotalSenhas - senhasVendidas;
+    }
+
+    public void incrementarSenhasVendidas() {
+        this.senhasVendidas++;
+    }
+
 
 }
