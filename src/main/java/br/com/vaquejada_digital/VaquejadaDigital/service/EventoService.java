@@ -1,9 +1,11 @@
 package br.com.vaquejada_digital.VaquejadaDigital.service;
 
+import br.com.vaquejada_digital.VaquejadaDigital.entity.Categoria;
 import br.com.vaquejada_digital.VaquejadaDigital.entity.Evento;
 import br.com.vaquejada_digital.VaquejadaDigital.entity.Usuarios;
 import br.com.vaquejada_digital.VaquejadaDigital.entity.enums.Status;
 import br.com.vaquejada_digital.VaquejadaDigital.exceptions.EventoNotFoundException;
+import br.com.vaquejada_digital.VaquejadaDigital.repository.CategoriaRepository;
 import br.com.vaquejada_digital.VaquejadaDigital.repository.EventoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,10 @@ public class EventoService {
 
     private final EventoRepository eventoRepository;
     private final UsuariosService usuariosService;
+    private final SenhaService senhaService;
+    private final CategoriaRepository categoriaRepository;
 
-    public Evento createEvent(Evento event, List<Long> juizId, List<Long> locutorId) {
+    public Evento createEvent(Evento event, List<Long> juizId, List<Long> locutorId, Long categoriaId) {
 
         List<Usuarios> juizes = usuariosService.buscarJuizesById(juizId);
         List<Usuarios> locutores = usuariosService.buscarLocutoresById(locutorId);
@@ -25,7 +29,14 @@ public class EventoService {
         event.setJuizes(juizes);
         event.setLocutores(locutores);
         event.setStatus(Status.ATIVO);
-        return eventoRepository.save(event);
+
+        Evento eventoSalvo = eventoRepository.save(event);
+
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+
+        senhaService.gerarSenhasParaEvento(eventoSalvo, categoria);
+        return eventoSalvo;
     }
 
     public Evento updateEvent(Long id, Evento updateEvent) {
