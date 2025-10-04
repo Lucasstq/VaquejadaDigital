@@ -34,7 +34,7 @@ public interface SenhaRepository extends JpaRepository<Senha, Long> {
         """)
     List<Senha> findDisponiveisByEventoAndCategoria(Long eventoId, Long categoriaId);
 
-    Long countByEventoIdAndCategoriaIdAndStatusPagamento(
+    List<Senha> findByEventoIdAndCategoriaIdAndStatusPagamento(
             Long eventoId,
             Long categoriaId,
             StatusPagamento status
