@@ -31,6 +31,8 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.POST, "/vaquejada-digital/auth/registro").permitAll()
                         .requestMatchers(HttpMethod.POST, "vaquejada-digital/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/vaquejada-digital/auth/refresh").permitAll() // NOVO
+                        .requestMatchers(HttpMethod.POST, "/vaquejada-digital/auth/logout").permitAll() // NOVO
                         .requestMatchers(HttpMethod.GET, "/vaquejada-digital/evento").permitAll()
                         .requestMatchers(HttpMethod.GET, "/vaquejada-digital/evento/{id}").permitAll()
                         .anyRequest().authenticated()
