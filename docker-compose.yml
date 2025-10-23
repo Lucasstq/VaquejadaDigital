@@ -1,0 +1,15 @@
+services:
+  vaquejada-db:
+    image: postgres:15
+    container_name: vaquejada_digital
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - vaquejada-digital-db-data:/var/lib/postgresql/data
+
+volumes:
+  vaquejada-digital-db-data:
