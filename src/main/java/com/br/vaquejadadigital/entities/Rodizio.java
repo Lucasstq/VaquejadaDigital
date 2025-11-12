@@ -32,6 +32,10 @@ public class Rodizio {
     @Column(name = "numero_rodizio", nullable = false)
     private Integer numeroRodizio;
 
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private FaseRodizio fase;
