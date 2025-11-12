@@ -42,10 +42,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/eventos/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/eventos/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/vendas/manual").hasAuthority("ADMIN")
+                        .requestMatchers("/api/relatorios/**").hasAuthority("ADMIN")
                         //Endpoints de juiz e locutor
                         .requestMatchers("/api/rodizios/**").hasAnyAuthority("ADMIN", "JUIZ", "LOCUTOR")
                         .requestMatchers("/api/resultados/**").hasAnyAuthority("ADMIN", "JUIZ")
                         .requestMatchers("/api/ordem-corrida/**").hasAnyAuthority("ADMIN", "JUIZ", "LOCUTOR")
+                        // Endpoints de histórico de corredores
+                        .requestMatchers(HttpMethod.POST, "/api/historico").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/historico/corredor/*/evento/*/posicao").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/historico/*").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
 
                 )
