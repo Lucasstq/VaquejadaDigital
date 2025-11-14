@@ -4,7 +4,8 @@ public enum StatusPagamento {
     PENDENTE("Pendente"),
     APROVADO("Aprovado"),
     RECUSADO("Recusado"),
-    CANCELADO("Cancelado");
+    CANCELADO("Cancelado"),
+    ESTORNADO("Estornado");
 
     private final String descricao;
 
