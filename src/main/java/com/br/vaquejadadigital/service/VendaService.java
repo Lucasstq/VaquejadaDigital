@@ -4,27 +4,32 @@ import com.br.vaquejadadigital.entities.*;
 import com.br.vaquejadadigital.entities.enums.StatusPagamento;
 import com.br.vaquejadadigital.entities.enums.StatusSenha;
 import com.br.vaquejadadigital.entities.enums.TipoVenda;
+import com.br.vaquejadadigital.exception.BusinessException;
 import com.br.vaquejadadigital.repositories.EventoRepository;
 import com.br.vaquejadadigital.repositories.SenhaRepository;
 import com.br.vaquejadadigital.repositories.UsuarioRepository;
 import com.br.vaquejadadigital.repositories.VendaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VendaService {
 
     private final VendaRepository vendaRepository;
     private final EventoRepository eventoRepository;
     private final SenhaRepository senhaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final MercadoPagoService mercadoPagoService;
     private final DuplaService duplaService;
 
     @Transactional
@@ -75,18 +80,14 @@ public class VendaService {
 
     @Transactional
     public Venda vendaOnline(Venda venda, List<ItemVenda> itens) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Usuario comprador = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        log.info("Processando venda online para evento {}", venda.getEvento().getId());
 
         Evento evento = eventoRepository.findById(venda.getEvento().getId())
                 .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
 
         venda.setEvento(evento);
-        venda.setComprador(comprador);
-        venda.setStatusPagamento(StatusPagamento.PENDENTE);
         venda.setTipoVenda(TipoVenda.ONLINE);
-        venda.setItens(new ArrayList<>());
+        venda.setDataVenda(LocalDateTime.now());
 
         BigDecimal valorTotal = BigDecimal.ZERO;
 
@@ -98,6 +99,7 @@ public class VendaService {
                 throw new RuntimeException("Senha " + senha.getNumeroSenha() + " não está disponível");
             }
 
+            // Marca como RESERVADA enquanto aguarda pagamento
             senha.setStatus(StatusSenha.RESERVADA);
             senha.setDupla(item.getSenha().getDupla());
             senhaRepository.save(senha);
@@ -111,22 +113,14 @@ public class VendaService {
         }
 
         venda.setValorTotal(valorTotal);
+
+        venda.setStatusPagamento(StatusPagamento.PENDENTE);
         venda = vendaRepository.save(venda);
-
-        // TODO: Integrar com gateway de pagamento
-
-        // Por enquanto, aprovar automaticamente
-        venda.setStatusPagamento(StatusPagamento.APROVADO);
-
-        for (ItemVenda item : venda.getItens()) {
-            item.getSenha().setStatus(StatusSenha.VENDIDA);
-        }
-
-        evento.setQuantidadeSenhasVendidas(evento.getQuantidadeSenhasVendidas() + itens.size());
-        eventoRepository.save(evento);
+        log.info("Venda {} criada. Aguardando confirmação de pagamento", venda.getId());
 
         return venda;
     }
+
 
     @Transactional(readOnly = true)
     public List<Venda> listarPorEvento(Long eventoId) {
@@ -143,4 +137,55 @@ public class VendaService {
         return vendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venda não encontrada"));
     }
+
+
+    //Confirma o pagamento e finaliza a venda, Chamado pelo webhook do Mercado Pago
+    @Transactional
+    public void confirmarPagamento(Long vendaId) {
+        log.info("Confirmando pagamento da venda {}", vendaId);
+
+        Venda venda = buscarPorId(vendaId);
+
+        if (venda.getStatusPagamento() != StatusPagamento.APROVADO) {
+            throw new BusinessException("Pagamento não está aprovado");
+        }
+
+        // Marca todas as senhas como VENDIDAS
+        for (ItemVenda item : venda.getItens()) {
+            item.getSenha().setStatus(StatusSenha.VENDIDA);
+            senhaRepository.save(item.getSenha());
+        }
+
+        // Atualiza contador de senhas vendidas do evento
+        Evento evento = venda.getEvento();
+        evento.setQuantidadeSenhasVendidas(evento.getQuantidadeSenhasVendidas() + venda.getItens().size());
+        eventoRepository.save(evento);
+
+        log.info("Venda {} confirmada com sucesso", vendaId);
+    }
+
+    @Transactional
+    public void cancelarVendaPendente(Long vendaId) {
+        log.info("Cancelando venda pendente {}", vendaId);
+
+        Venda venda = buscarPorId(vendaId);
+
+        if (venda.getStatusPagamento() == StatusPagamento.APROVADO) {
+            throw new BusinessException("Não é possível cancelar venda já aprovada");
+        }
+
+        // Libera as senhas reservadas
+        for (ItemVenda item : venda.getItens()) {
+            Senha senha = item.getSenha();
+            senha.setStatus(StatusSenha.DISPONIVEL);
+            senha.setDupla(null);
+            senhaRepository.save(senha);
+        }
+
+        venda.setStatusPagamento(StatusPagamento.CANCELADO);
+        vendaRepository.save(venda);
+
+        log.info("Venda {} cancelada e senhas liberadas", vendaId);
+    }
+
 }
