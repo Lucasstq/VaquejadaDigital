@@ -146,5 +146,147 @@ public class OrdemCorridaService {
         return dupla.getPuxador().getUsuario().getNome() + " / " +
                 dupla.getEsteireiro().getUsuario().getNome();
     }
+
+    //Permite que o locutor mova uma dupla para outra posição na fila, Reordena automaticamente as outras duplas afetadas
+    @Transactional
+    public OrdemCorrida alterarPosicao(Long ordemId, Integer novaPosicao) {
+        log.info("Alterando posição da ordem {} para posição {}", ordemId, novaPosicao);
+
+        OrdemCorrida ordemParaMover = ordemCorridaRepository.findById(ordemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ordem de corrida não encontrada"));
+
+        Integer posicaoAtual = ordemParaMover.getPosicao();
+        Long rodizioId = ordemParaMover.getRodizio().getId();
+
+        if (ordemParaMover.getStatus() == StatusCorrida.CORREU) {
+            throw new BusinessException("Não é possível alterar a posição de uma dupla que já correu");
+        }
+
+        if (posicaoAtual.equals(novaPosicao)) {
+            log.debug("Posição não foi alterada, retornando ordem atual");
+            return ordemParaMover;
+        }
+
+        List<OrdemCorrida> todasOrdens = ordemCorridaRepository.findByRodizioIdOrderByPosicaoAsc(rodizioId);
+
+        if (novaPosicao < 1 || novaPosicao > todasOrdens.size()) {
+            throw new BusinessException(
+                    String.format("Posição inválida. Deve estar entre 1 e %d", todasOrdens.size())
+            );
+        }
+
+        todasOrdens.remove(ordemParaMover);
+
+        todasOrdens.add(novaPosicao - 1, ordemParaMover);
+
+        for (int i = 0; i < todasOrdens.size(); i++) {
+            OrdemCorrida ordem = todasOrdens.get(i);
+            Integer novaPosicaoOrdem = i + 1;
+
+            if (!ordem.getPosicao().equals(novaPosicaoOrdem)) {
+                ordem.setPosicao(novaPosicaoOrdem);
+                ordemCorridaRepository.save(ordem);
+                Long puxadorUsuarioId = ordem.getDupla().getPuxador().getUsuario().getId();
+                Long esteireiroUsuarioId = ordem.getDupla().getEsteireiro().getUsuario().getId();
+
+                notificacaoService.notificarAlteracaoOrdem(puxadorUsuarioId, novaPosicaoOrdem, rodizioId);
+                notificacaoService.notificarAlteracaoOrdem(esteireiroUsuarioId, novaPosicaoOrdem, rodizioId);
+
+                log.debug("Ordem {} reposicionada para posição {}", ordem.getId(), novaPosicaoOrdem);
+            }
+        }
+
+        log.info("Ordem {} movida de posição {} para posição {} com sucesso",
+                ordemId, posicaoAtual, novaPosicao);
+
+        return ordemCorridaRepository.findById(ordemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ordem não encontrada"));
+    }
+
+    //Adiciona uma dupla em uma posição específica, deslocando as demais
+    @Transactional
+    public OrdemCorrida encaixarDupla(Long rodizioId, Long duplaId, Integer posicao) {
+        log.info("Encaixando dupla {} na posição {} do rodízio {}", duplaId, posicao, rodizioId);
+
+        Rodizio rodizio = rodizioRepository.findById(rodizioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rodízio não encontrado"));
+
+        Dupla dupla = duplaRepository.findById(duplaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Dupla não encontrada"));
+
+        List<OrdemCorrida> todasOrdens = ordemCorridaRepository.findByRodizioIdOrderByPosicaoAsc(rodizioId);
+
+        if (posicao < 1 || posicao > todasOrdens.size() + 1) {
+            throw new BusinessException(
+                    String.format("Posição inválida. Deve estar entre 1 e %d", todasOrdens.size() + 1)
+            );
+        }
+
+        OrdemCorrida novaOrdem = OrdemCorrida.builder()
+                .rodizio(rodizio)
+                .dupla(dupla)
+                .posicao(posicao)
+                .status(StatusCorrida.PRONTO)
+                .build();
+
+        for (OrdemCorrida ordem : todasOrdens) {
+            if (ordem.getPosicao() >= posicao) {
+                ordem.setPosicao(ordem.getPosicao() + 1);
+                ordemCorridaRepository.save(ordem);
+                Long puxadorUsuarioId = ordem.getDupla().getPuxador().getUsuario().getId();
+                Long esteireiroUsuarioId = ordem.getDupla().getEsteireiro().getUsuario().getId();
+                notificacaoService.notificarAlteracaoOrdem(puxadorUsuarioId, ordem.getPosicao(), rodizioId);
+                notificacaoService.notificarAlteracaoOrdem(esteireiroUsuarioId, ordem.getPosicao(), rodizioId);
+            }
+        }
+        OrdemCorrida savedOrdem = ordemCorridaRepository.save(novaOrdem);
+        log.info("Dupla {} encaixada com sucesso na posição {}", duplaId, posicao);
+        return savedOrdem;
+    }
+
+    //Reintegra duplas que faltaram ao final do rodízio
+    @Transactional
+    public List<OrdemCorrida> processarRaboDaGata(Long rodizioId) {
+        log.info("Processando Rabo da Gata para rodízio {}", rodizioId);
+        List<OrdemCorrida> faltas = listarFaltas(rodizioId);
+
+        if (faltas.isEmpty()) {
+            log.info("Nenhuma falta encontrada para o rodízio {}", rodizioId);
+            return List.of();
+        }
+        List<OrdemCorrida> todasOrdens = ordemCorridaRepository.findByRodizioIdOrderByPosicaoAsc(rodizioId);
+
+        Integer maiorPosicao = todasOrdens.stream()
+                .map(OrdemCorrida::getPosicao)
+                .max(Integer::compareTo)
+                .orElse(0);
+
+        int novaPosicao = maiorPosicao + 1;
+        for (OrdemCorrida falta : faltas) {
+            falta.setPosicao(novaPosicao);
+            falta.setStatus(StatusCorrida.PRONTO);
+            ordemCorridaRepository.save(falta);
+
+            Long puxadorUsuarioId = falta.getDupla().getPuxador().getUsuario().getId();
+            Long esteireiroUsuarioId = falta.getDupla().getEsteireiro().getUsuario().getId();
+
+            notificacaoService.notificarAlteracaoOrdem(puxadorUsuarioId, novaPosicao, rodizioId);
+            notificacaoService.notificarAlteracaoOrdem(esteireiroUsuarioId, novaPosicao, rodizioId);
+
+            log.info("Dupla {} reposicionada para posição {} (Rabo da Gata)",
+                    falta.getDupla().getId(), novaPosicao);
+
+            novaPosicao++;
+        }
+
+        log.info("Rabo da Gata processado: {} duplas reintegradas", faltas.size());
+        return faltas;
+    }
+
+    @Transactional(readOnly = true)
+    public OrdemCorrida buscarPorId(Long id) {
+        return ordemCorridaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ordem de corrida não encontrada"));
+    }
 }
 
