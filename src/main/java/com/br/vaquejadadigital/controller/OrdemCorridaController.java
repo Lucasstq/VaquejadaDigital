@@ -1,5 +1,7 @@
 package com.br.vaquejadadigital.controller;
 
+import com.br.vaquejadadigital.dtos.request.AlterarPosicaoRequest;
+import com.br.vaquejadadigital.dtos.request.EncaixarDuplaRequest;
 import com.br.vaquejadadigital.dtos.request.OrdemCorridaRequest;
 import com.br.vaquejadadigital.dtos.response.OrdemCorridaResponse;
 import com.br.vaquejadadigital.entities.Dupla;
@@ -91,4 +93,63 @@ public class OrdemCorridaController {
         return ResponseEntity.ok(OrdemCorridaMapper.toResponse(ordem));
     }
 
+    //Altera a posição de uma dupla na ordem de corrida, Move a dupla para uma nova posição, reordenando as demais
+    @PutMapping("/{id}/posicao")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'JUIZ', 'LOCUTOR')")
+    public ResponseEntity<OrdemCorridaResponse> alterarPosicao(
+            @PathVariable Long id,
+            @Valid @RequestBody AlterarPosicaoRequest request) {
+
+        log.info("Alterando posição da ordem {} para {}", id, request.novaPosicao());
+
+        OrdemCorrida ordem = ordemCorridaService.alterarPosicao(id, request.novaPosicao());
+
+        return ResponseEntity.ok(OrdemCorridaMapper.toResponse(ordem));
+    }
+
+    //Encaixa uma dupla em uma posição específica, Adiciona a dupla na posição desejada, deslocando as demais
+    @PostMapping("/encaixar")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'JUIZ', 'LOCUTOR')")
+    public ResponseEntity<OrdemCorridaResponse> encaixarDupla(@Valid @RequestBody EncaixarDuplaRequest request) {
+        log.info("Encaixando dupla {} na posição {} do rodízio {}",
+                request.duplaId(), request.posicao(), request.rodizioId());
+
+        OrdemCorrida ordem = ordemCorridaService.encaixarDupla(
+                request.rodizioId(),
+                request.duplaId(),
+                request.posicao()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(OrdemCorridaMapper.toResponse(ordem));
+    }
+
+    //Lista duplas que faltaram (para Rabo da Gata)
+    @GetMapping("/rodizio/{rodizioId}/faltas")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'JUIZ', 'LOCUTOR')")
+    public ResponseEntity<List<OrdemCorridaResponse>> listarFaltas(@PathVariable Long rodizioId) {
+        log.info("Listando faltas do rodízio {}", rodizioId);
+
+        List<OrdemCorridaResponse> response = ordemCorridaService.listarFaltas(rodizioId)
+                .stream()
+                .map(OrdemCorridaMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+    // Processa o Rabo da Gata Reintegra todas as duplas que faltaram ao final da ordem
+    @PostMapping("/rodizio/{rodizioId}/rabo-da-gata")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'JUIZ', 'LOCUTOR')")
+    public ResponseEntity<List<OrdemCorridaResponse>> processarRaboDaGata(@PathVariable Long rodizioId) {
+        log.info("Processando Rabo da Gata para rodízio {}", rodizioId);
+
+        List<OrdemCorridaResponse> response = ordemCorridaService.processarRaboDaGata(rodizioId)
+                .stream()
+                .map(OrdemCorridaMapper::toResponse)
+                .collect(Collectors.toList());
+
+        log.info("Rabo da Gata processado: {} duplas reintegradas", response.size());
+
+        return ResponseEntity.ok(response);
+    }
 }
