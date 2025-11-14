@@ -64,6 +64,12 @@ public class Venda {
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
 
+    @Column(name = "data_pagamento")
+    private LocalDateTime dataPagamento;
+
+    @Column(name = "id_transacao_gateway")
+    private String idTransacaoGateway;
+
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ItemVenda> itens = new ArrayList<>();
